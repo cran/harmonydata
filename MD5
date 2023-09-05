@@ -1,0 +1,11 @@
+7d489bf1b3c7dc4cf8c0946b867cfac6 *DESCRIPTION
+4c9a0905cf10d31ecb8a273718a8253c *LICENSE
+a0d4ace0b5180ed13d4fbbfbe4bd2972 *NAMESPACE
+d5a5f441b6882057b137498239884d13 *R/get_example_instruments.R
+a5bce015e0bd29aab09b8433dbce7796 *R/globals.R
+2e75d1cb6232c77b56aceb72bf009f1d *R/load_instruments_for_file.R
+6ae457a143880ce0207084a9081d055f *R/match_instruments.R
+9346a4281d3eee52422e28f4a5ad9627 *man/get_example_instruments.Rd
+b0abc600156ad35a39966b25ba0db653 *man/load_instruments_from_file.Rd
+65851ebe16849be363d41e85e4dbfbb1 *man/match_instruments.Rd
+33ebdfa8ee17460d3cacf731efa39574 *man/set_url.Rd
