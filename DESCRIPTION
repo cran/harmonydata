@@ -1,7 +1,7 @@
 Package: harmonydata
 Type: Package
 Title: R Library for 'Harmony'
-Version: 0.1.0
+Version: 0.1.1
 Authors@R: c(
   person("Omar", "Hassoun", email = "omtarful@gmail.com", role = c("aut", "cre")),
   person("Thomas", "Wood", email = "thomas@fastdatascience.com", role = c("ctb")),
@@ -13,10 +13,10 @@ Encoding: UTF-8
 Imports: httr, uuid, base64enc, jsonlite, utils, tools
 RoxygenNote: 7.2.3
 NeedsCompilation: no
-Packaged: 2023-09-05 07:54:38 UTC; User
+Packaged: 2023-10-19 15:05:24 UTC; User
 Author: Omar Hassoun [aut, cre],
   Thomas Wood [ctb],
   Ulster University [cph]
 Maintainer: Omar Hassoun <omtarful@gmail.com>
 Repository: CRAN
-Date/Publication: 2023-09-05 19:50:10 UTC
+Date/Publication: 2023-10-19 15:40:02 UTC
