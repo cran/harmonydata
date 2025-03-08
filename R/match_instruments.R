@@ -26,80 +26,80 @@
 #' and matches the instruments using the 'Harmony Data API'. It returns the matched instruments.
 #'
 #' @param instruments A list of instruments to be matched.
+#' @param is_negate A boolean value to toggle question negation. Default is TRUE.
 #' @return A list of matched instruments returned from the 'Harmony Data API'.
 #'
 #' @examples
 #' \donttest{
-#' instruments_list <- list(
-#'   list(
-#'     instrument_id = "id1",
-#'     instrument_name = "Instrument A",
-#'     questions = list(
-#'       list(
-#'         question_text = "How old are you?",
-#'         topics = c("Age", "Demographics"),
-#'         source_page = "https://example.com/instrumentA"
-#'       ),
-#'       list(
-#'         question_text = "What is your gender?",
-#'         topics = c("Gender", "Demographics"),
-#'         source_page = "https://example.com/instrumentA"
-#'       )
-#'     )
-#'   ),
-#'   list(
-#'     instrument_id = "id2",
-#'     instrument_name = "Instrument B",
-#'     questions = list(
-#'       list(
-#'         question_text = "Do you smoke?",
-#'         topics = c("Smoking", "Health"),
-#'         source_page = "https://example.com/instrumentB"
-#'       )
-#'     )
-#'   )
-#' )
-#' matched_instruments <- match_instruments(instruments_list)
 #'
+#'
+#'
+#' instrument_A <- create_instrument_from_list(list(
+#'   "How old are you?",
+#'   "What is your gender?"
+#' ))
+#'
+#' instrument_B <- create_instrument_from_list(list(
+#'   "Do you smoke?"
+#' ))
+#'
+#' instruments <- list(instrument_A, instrument_B)
+#'
+#' matched_instruments <- match_instruments(instruments)
 #' }
 #'
 #' @import jsonlite
 #' @import httr
 #'
-#' @references
-#' For more information about the 'Harmony Data API', visit: \url{https://api.harmonydata.org/docs}
 #'
 #' @export
 #' @author Ulster University [cph]
-match_instruments <- function(instruments){
-#most of the work is simply creating the body
-  #steps to create the body
-  #take a list of instruments and convert it to a format that is acceptable by the databse
-  headers = c(
-    `accept` = "application/json",
-    `Content-Type` = "application/json"
-  )
-  instruments = list(instruments)
-  names(instruments) = "instruments"
-  for (i in 1:length(instruments[["instruments"]])){
-    instruments[["instruments"]][[i]][["study"]] = NULL
-    instruments[["instruments"]][[i]][["sweep"]] = NULL
-    instruments[["instruments"]][[i]][["metadata"]] = NULL
-    #now clean the questions
-    for (j in 1:length(instruments[["instruments"]][[i]][["questions"]])){
-      instruments[["instruments"]][[i]][["questions"]][[j]][["instrument_id"]] = NULL
-      instruments[["instruments"]][[i]][["questions"]][[j]][["instrument_name"]] = NULL
-      instruments[["instruments"]][[i]][["questions"]][[j]][["topics_auto"]] = NULL
-      instruments[["instruments"]][[i]][["questions"]][[j]][["nearest_match_from_mhc_auto"]] = NULL
+
+
+match_instruments <- function(instruments, is_negate = TRUE) {
+    #most of the work is simply creating the body
+    #steps to create the body
+    #take a list of instruments and convert it to a format that is acceptable by the databse
+    headers <- c(
+        `accept` = "application/json",
+        `Content-Type` = "application/json"
+    )
+
+    if (! is.null(names(instruments))) { # the case where only one instrument is passed but not enclosed as a list
+        instruments <- list("instruments" = list(instruments))
+    } else { # the case where a list is passed
+        instruments <- list("instruments" = instruments)
     }
-  }
+
+    for (i in seq_along(instruments[["instruments"]])){
+        instruments[["instruments"]][[i]][["study"]] <- NULL
+        instruments[["instruments"]][[i]][["sweep"]] <- NULL
+        instruments[["instruments"]][[i]][["metadata"]] <- NULL
+        #now clean the questions
+        for (j in seq_along(instruments[["instruments"]][[i]][["questions"]])) {
+            instruments[["instruments"]][[i]][["questions"]][[j]][["instrument_name"]] <- NULL
+            instruments[["instruments"]][[i]][["questions"]][[j]][["topics_auto"]] <- NULL
+            instruments[["instruments"]][[i]][["questions"]][[j]][["nearest_match_from_mhc_auto"]] <- NULL
+        }
+    }
 
 
-  #from questions u need to delete anything after source page
-  bod = jsonlite::toJSON(instruments, pretty=TRUE,auto_unbox=TRUE)
-  res <- httr::POST(url = paste0(pkg.globals$url,'/text/match'), httr::add_headers(.headers=headers), body = bod, encode = "json")
-  #contents
-  conten = content(res)
-  return(conten)
+    #from questions u need to delete anything after source page
+    bod <- jsonlite::toJSON(instruments, pretty = TRUE, auto_unbox = TRUE)
+    res <- httr::POST(url = paste0(pkg_globals$url, "/text/match?is_negate=", is_negate),
+                      httr::add_headers(.headers = headers), body = bod, encode = "json")
+    #contents
+    conten <- content(res)
+
+    # for the clusters, we need to add 1 to the item_ids since R indexes from 1 (whereas python indexes from 0)
+    for (i in seq_along(conten$clusters)) {
+        for (j in seq_along(conten$clusters[[i]]$item_ids)) {
+            conten$clusters[[i]]$item_ids[[j]] <- conten$clusters[[i]]$item_ids[[j]] + 1
+        }
+
+        # we also add 1 to each cluster_id
+        conten$clusters[[i]]$cluster_id <- conten$clusters[[i]]$cluster_id + 1
+    }
+
+    return(conten)
 }
-
