@@ -1,7 +1,7 @@
 Package: harmonydata
 Type: Package
 Title: R Library for 'Harmony'
-Version: 0.2.1
+Version: 0.3.1
 Authors@R: c(
   person("Omar", "Hassoun", email = "omtarful@gmail.com", role = c("aut", "cre")),
   person("Thomas", "Wood", email = "thomas@fastdatascience.com", role = c("ctb")),
@@ -13,15 +13,15 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 Imports: httr, uuid, base64enc, jsonlite, utils, tools, assertthat,
         purrr
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.2
 Suggests: testthat (>= 3.0.0)
 Config/testthat/edition: 3
 NeedsCompilation: no
-Packaged: 2025-03-08 15:03:37 UTC; omarhassoun
+Packaged: 2025-04-20 15:41:18 UTC; omarhassoun
 Author: Omar Hassoun [aut, cre],
   Thomas Wood [ctb],
   Alex, Nikic [ctb],
   Ulster University [cph]
 Maintainer: Omar Hassoun <omtarful@gmail.com>
 Repository: CRAN
-Date/Publication: 2025-03-08 15:20:02 UTC
+Date/Publication: 2025-04-20 16:10:01 UTC

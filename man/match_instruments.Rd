@@ -4,15 +4,32 @@
 \alias{match_instruments}
 \title{Match Instruments Function}
 \usage{
-match_instruments(instruments, is_negate = TRUE)
+match_instruments(
+  instruments,
+  topics = list(),
+  is_negate = TRUE,
+  clustering_algorithm = "affinity_propagation"
+)
 }
 \arguments{
 \item{instruments}{A list of instruments to be matched.}
 
-\item{is_negate}{A boolean value to toggle question negation. Default is TRUE.}
+\item{topics}{A list of topics with which to tag the questions. Default is empty.}
+
+\item{is_negate}{A boolean indicating whether to apply negation-based preprocessing. Default is TRUE.
+
+This option addresses a common limitation in large language model (LLM) embeddings, where antonyms (e.g., "happy" and "sad") may be treated as similar due to contextual overlap.
+When \code{is_negate = TRUE}, the function prepends negation terms such as "not" or "didn't" to the input sentences and evaluates whether this increases or decreases their cosine similarity.
+If the similarity increases after negation, the model interprets the sentences as antonyms and returns a negative similarity score.
+
+When \code{is_negate = FALSE}, negation is skipped and most similarity values returned will be positive.
+
+The Harmony API defaults to \code{is_negate = TRUE}, as some users prefer detecting antonymy through negative similarity values, while others may prefer only positive scores.'}
+
+\item{clustering_algorithm}{A string value to select the clustering algorithm to use. Must be one of: "affinity_propagation", "kmeans", "deterministic", "hdbscan". Default is "affinity_propagation".}
 }
 \value{
-A list of matched instruments returned from the 'Harmony Data API'.
+A list containing the matched instruments retrieved from the Harmony Data API. The returned object includes attributes such as the similarity matrix, identified clusters, associated cluster topics, and other relevant metadata.
 }
 \description{
 This function takes a list of instruments, converts it to a format acceptable by the database,
@@ -20,8 +37,6 @@ and matches the instruments using the 'Harmony Data API'. It returns the matched
 }
 \examples{
 \donttest{
-
-
 
 instrument_A <- create_instrument_from_list(list(
   "How old are you?",
@@ -34,7 +49,10 @@ instrument_B <- create_instrument_from_list(list(
 
 instruments <- list(instrument_A, instrument_B)
 
-matched_instruments <- match_instruments(instruments)
+matched_instruments <- match_instruments(
+  instruments,
+  topics = list("anxiety", "depression")
+)
 }
 
 }

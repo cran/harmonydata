@@ -26,13 +26,23 @@
 #' and matches the instruments using the 'Harmony Data API'. It returns the matched instruments.
 #'
 #' @param instruments A list of instruments to be matched.
-#' @param is_negate A boolean value to toggle question negation. Default is TRUE.
-#' @return A list of matched instruments returned from the 'Harmony Data API'.
+#' @param topics A list of topics with which to tag the questions. Default is empty.
+#' @param is_negate A boolean indicating whether to apply negation-based preprocessing. Default is TRUE.
+#'
+#' This option addresses a common limitation in large language model (LLM) embeddings, where antonyms (e.g., "happy" and "sad") may be treated as similar due to contextual overlap.
+#' When \code{is_negate = TRUE}, the function prepends negation terms such as "not" or "didn't" to the input sentences and evaluates whether this increases or decreases their cosine similarity.
+#' If the similarity increases after negation, the model interprets the sentences as antonyms and returns a negative similarity score.
+#'
+#' When \code{is_negate = FALSE}, negation is skipped and most similarity values returned will be positive.
+#'
+#' The Harmony API defaults to \code{is_negate = TRUE}, as some users prefer detecting antonymy through negative similarity values, while others may prefer only positive scores.'
+#'
+#' @param clustering_algorithm A string value to select the clustering algorithm to use. Must be one of: "affinity_propagation", "kmeans", "deterministic", "hdbscan". Default is "affinity_propagation".
+#'
+#' @return A list containing the matched instruments retrieved from the Harmony Data API. The returned object includes attributes such as the similarity matrix, identified clusters, associated cluster topics, and other relevant metadata.
 #'
 #' @examples
 #' \donttest{
-#'
-#'
 #'
 #' instrument_A <- create_instrument_from_list(list(
 #'   "How old are you?",
@@ -45,7 +55,10 @@
 #'
 #' instruments <- list(instrument_A, instrument_B)
 #'
-#' matched_instruments <- match_instruments(instruments)
+#' matched_instruments <- match_instruments(
+#'   instruments,
+#'   topics = list("anxiety", "depression")
+#' )
 #' }
 #'
 #' @import jsonlite
@@ -56,7 +69,7 @@
 #' @author Ulster University [cph]
 
 
-match_instruments <- function(instruments, is_negate = TRUE) {
+match_instruments <- function(instruments, topics = list(), is_negate = TRUE, clustering_algorithm = "affinity_propagation") {
     #most of the work is simply creating the body
     #steps to create the body
     #take a list of instruments and convert it to a format that is acceptable by the databse
@@ -83,10 +96,17 @@ match_instruments <- function(instruments, is_negate = TRUE) {
         }
     }
 
+    # add the topics
+    instruments[["topics"]] <- topics
 
     #from questions u need to delete anything after source page
     bod <- jsonlite::toJSON(instruments, pretty = TRUE, auto_unbox = TRUE)
-    res <- httr::POST(url = paste0(pkg_globals$url, "/text/match?is_negate=", is_negate),
+    res <- httr::POST(
+                      url = paste0(
+                          pkg_globals$url,
+                          "/text/match?is_negate=", is_negate,
+                          "&clustering_algorithm=", clustering_algorithm
+                      ),
                       httr::add_headers(.headers = headers), body = bod, encode = "json")
     #contents
     conten <- content(res)
