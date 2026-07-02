@@ -8,7 +8,8 @@ match_instruments(
   instruments,
   topics = list(),
   is_negate = TRUE,
-  clustering_algorithm = "affinity_propagation"
+  clustering_algorithm = "affinity_propagation",
+  ...
 )
 }
 \arguments{
@@ -27,6 +28,18 @@ When \code{is_negate = FALSE}, negation is skipped and most similarity values re
 The Harmony API defaults to \code{is_negate = TRUE}, as some users prefer detecting antonymy through negative similarity values, while others may prefer only positive scores.'}
 
 \item{clustering_algorithm}{A string value to select the clustering algorithm to use. Must be one of: "affinity_propagation", "kmeans", "deterministic", "hdbscan". Default is "affinity_propagation".}
+
+\item{...}{Optional named arguments:
+\describe{
+  \item{model}{The HuggingFace model to be used by the matcher.
+    Currently recommended models:
+    \itemize{
+      \item \code{sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2}
+      \item \code{sentence-transformers/paraphrase-multilingual-mpnet-base-v2}
+      \item \code{harmonydata/mental_health_harmonisation_1}
+    }
+  }
+}}
 }
 \value{
 A list containing the matched instruments retrieved from the Harmony Data API. The returned object includes attributes such as the similarity matrix, identified clusters, associated cluster topics, and other relevant metadata.
@@ -52,6 +65,15 @@ instruments <- list(instrument_A, instrument_B)
 matched_instruments <- match_instruments(
   instruments,
   topics = list("anxiety", "depression")
+)
+
+# with optional arguments
+matched_instruments <- match_instruments(
+  instruments,
+  topics = list("anxiety", "depression"),
+  is_negate = TRUE,
+  clustering_algorithm = "affinity_propagation",
+  model = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
 )
 }
 
